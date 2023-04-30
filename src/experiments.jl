@@ -17,18 +17,18 @@ end
 function iris_experiments()
     X, labels, classes = iris_data()
     n,p = size(X)
-    prop_var = 100*round.(z1 / sum(z1), digits = 4)
-
 
     Z1,z1 = gpca(X, cov(X), mean1(X))
     Z2,z2 = ics(X, cov(X), cov4(X), mean3(X))
 
+    prop_var = 100*round.(z1 / sum(z1), digits = 4)
+
     plt1 = scatter(Z1[:,1], Z1[:,2], group = labels, xlabel = "Principal Component 1 ($(prop_var[1,1])% of variance)", ylabel = "Principal Component 2 ($(prop_var[2,2])% of variance)", legend = :bottomright, title = "Iris Data Visualisation by PCA")
     plt2 = scatter(Z2[:,1], Z2[:,2], group = labels, xlabel = "Component 1", ylabel = "Component 2",legend = :bottomright, title = "Iris Data Visualisation by ICS")
 
-    plt3 = scatter(ColVecs(tsne2(X, 2, 15))..., group = labels, legend = :topright, title = "Iris Data Visualisation by t-SNE")
-    Random.seed!(636)
-    plt4 = scatter(ColVecs(umap2(X, 2, 25))..., group = labels, legend = :topleft, title = "Iris Data Visualisation by UMAP")
+    plt3 = scatter(ColVecs(tsne2(X, 2, 15))..., group = labels, xlabel = "Dimension 1", ylabel = "Dimension 2", legend = :topright, title = "Iris Data Visualisation by t-SNE")
+    Random.seed!(987)
+    plt4 = scatter(ColVecs(umap2(X, 2, 25))..., group = labels, xlabel = "Dimension 1", ylabel = "Dimension 2", legend = :topleft, title = "Iris Data Visualisation by UMAP")
 
     plt5 = contour_plot(Z1, labels, (1,2), contour_func = svm2, title = "Linear SVM on [PC1,PC2] of Iris Data", hide_labels = false)
     plt6 = contour_plot(Z1, labels, (1,2), contour_func = logit2, title = "Logistic Classifier on [PC1,PC2] of Iris Data", hide_labels = false)
@@ -111,8 +111,8 @@ function wine_experiments()
     plt8 = contour_plot(gpca(Z8[:,1:2])[1], labels, (1,2), contour_func = logit2, hide_labels = false, title = "      Logistic Classifier on Result of {$(ts("ALCov",95)),$(ts("Cov",4))} Pair")
     #plt10 = component_plot(gpca(Z10[:,1:2])[1], 2, labels, mix = true)
 
-    plt0 = scatter(ColVecs(tsne2(X, 2, 30))..., group = labels, legend = :bottomright, title = "Wine Data Visualisation by t-SNE \n (Contamination: $contamination%)")
-    plt9 = scatter(ColVecs(tsne2(Z8[:,[1,2,p-1,p]], 2, 15))..., group = labels, legend = :bottomright, title = "Wine Data Visualisation by t-SNE \n (On 4 Components of {$(ts("ALCov",95)),$(ts("Cov",4))} Pair)")
+    plt0 = scatter(ColVecs(tsne2(X, 2, 30))..., group = labels, xlabel = "Dimension 1", ylabel = "Dimension 2", legend = :bottomright, title = "Wine Data Visualisation by t-SNE \n (Contamination: $contamination%)")
+    plt9 = scatter(ColVecs(tsne2(Z8[:,[1,2,p-1,p]], 2, 15))..., group = labels, xlabel = "Dimension 1", ylabel = "Dimension 2", legend = :bottomright, title = "Wine Data Visualisation by t-SNE \n (On 4 Components of {$(ts("ALCov",95)),$(ts("Cov",4))} Pair)")
 
     #K1, K2, K3 = gaussian_kernel(X1, median_trick(X)), linear_kernel(X1, median_trick(X)), rational_kernel(X1, median_trick(X));
     #Z = ics(X,K3,K2*K3)[1]
@@ -159,7 +159,7 @@ function wbc_experiments()
     Z3,z3 = ics(X,S2,S1, mu1)
     Z4,z4 = ics(X,S1,S4, mu1)
     Z5,z5 = ics(X,S1,S6, mu1)
-    Z6,z6 = ics(X,S6,S5, mu6)
+    Z6,z6 = ics(X,S6,S4, mu4)
     Z7,z7 = ics(X,S7,S1, mu1)
     Z8,z8 = ics(X,S8,S1, mu1)
     Z9,z9 = ics(X,S9,S1, mu1)
@@ -168,7 +168,7 @@ function wbc_experiments()
     Z12,z12 = ics(X,S12,S1, mu1)
 
     Random.seed!(2804)
-    plt0 = scatter(ColVecs(umap2(X, 2, 20))..., group = labels, legend = :bottomleft, title = "WBC data visualisation by UMAP \n (Contamination: $contamination%)")
+    plt0 = scatter(ColVecs(umap2(X, 2, 20))..., group = labels, xlabel = "Dimension 1", ylabel = "Dimension 2", legend = :bottomleft, title = "WBC data visualisation by UMAP \n (Contamination: $contamination%)")
 
     #plt1 = contour_plot(Z1[:,1:2], labels, (1,2), contour_func = logit2, hide_labels = false, title = "Logistic Classifier on Result of {$(ts("Cov",2)),I} Pair")
     plt2 = contour_plot(gpca(Z10[:,1:2])[1], labels, (1,2), contour_func = logit2, hide_labels = false, title = "Logistic Classifier on Result of {$(ts("E_ALCov",5)),$(ts("Cov",2))} Pair")
@@ -251,8 +251,11 @@ function word2vec_experiments()
     end
     res  = 100*round.(res, digits = 4)
 
+    clr = get_default_colour()
+
     plt0 = scatter(ColVecs(tsne2(transform_z(X1), 2, 30))..., legend = :outerright,
             color = clr[classes], group = labels,
+            xlabel = "Dimension 1", ylabel = "Dimension 2",
             title = "Word2Vec data visualisation by t-SNE \n (N = 601, P = 300, Classes: 11)")
 
     savefig(plt0, "Figures/word2vec_tsne.svg")
@@ -360,8 +363,24 @@ function fasttext_experiments()
 
     Y = transform_z(Z4)
     plt = heatmap_plot(stratified_k_fold(Y[:,1:16], labels, 10, seed = sd)[2], labels,
-    title = "FastText: Stratified 10-fold Cross-Validation Classification Results of {Gaussian,Linear} Pair [16 Componenets]")
+    title = "FastText: Stratified 10-fold Cross-Validation Classification Results of {Gaussian,Linear} Pair [16 Components]")
     savefig(plt, "Figures/word2vec_cm.svg")
+
+    clr = get_default_colour()
+
+    plt0 = scatter(ColVecs(tsne2(transform_z(X1), 2, 30))..., legend = :outerright,
+            color = clr[classes], group = labels,
+            xlabel = "Dimension 1", ylabel = "Dimension 2",
+            title = "FastText data visualisation by t-SNE \n (Using default PCA{$(ts("Cov",2))} initialisation)")
+
+    savefig(plt0, "Figures/fasttext_tsne.svg")
+
+    plt1 = scatter(ColVecs(tsne2(transform_z(Y[:,1:16]), 2, 30))..., legend = :outerright,
+            color = clr[classes], group = labels,
+            xlabel = "Dimension 1", ylabel = "Dimension 2",
+            title = "FastText data visualisation by t-SNE \n (Using ICS{Gaussian,Linear} initialisation)")
+
+    savefig(plt1, "Figures/fasttext_tsne2.svg")
     return res
 end
 

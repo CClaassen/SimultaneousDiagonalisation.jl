@@ -34,7 +34,9 @@ function glove_data()
     labels, words = W[:,1], W[:,2]
     W_emb = readdlm("glove_words_embedded.csv", ',', Float64)
 
-    return W_emb, labels, vec_cat_encode(labels)
+    ord = sortperm(labels)
+
+    return W_emb[ord,:], labels[ord], vec_cat_encode(labels[ord])
 end
 
 #Loads FastText embedding data from a file
@@ -44,7 +46,9 @@ function fasttext_data()
     labels, words = W[:,1], W[:,2]
     W_emb = readdlm("fasttext_words_embedded.csv", ',', Float64)
 
-    return W_emb, labels, vec_cat_encode(labels)
+    ord = sortperm(labels)
+
+    return W_emb[ord,:], labels[ord], vec_cat_encode(labels[ord])
 end
 
 function ODDS_data(str::String; replace_0::Pair{String, String} = "normal" => "Normal", replace_1::Pair{String, String} = "outlier" => "Outlier")
