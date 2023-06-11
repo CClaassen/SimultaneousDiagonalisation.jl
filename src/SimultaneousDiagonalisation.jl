@@ -2,7 +2,7 @@ module SimultaneousDiagonalisation
 
 using LinearAlgebra
 using StatsBase, Statistics
-using Distributions, Random #, Combinatorics, StableRNGs
+using Distributions, Random #, StableRNGs
 using Distances, KernelFunctions, SmoothingSplines
 using Optim, TSne, UMAP, LIBSVM
 #using DelimitedFiles, Plots
@@ -10,10 +10,8 @@ using Optim, TSne, UMAP, LIBSVM
 #Resolve multi-export issue
 Kernel = KernelFunctions.Kernel
 
-##Set the correct directory
-#cd(@__DIR__)
 
-#Include all source files, grouped by contents
+#Include all source files, grouped here by contents
 
 include("factorisations.jl")
 include("component_selection.jl")
@@ -33,31 +31,85 @@ include("figures.jl")
 include("data_manipulation.jl")
 include("utilities.jl")
 
-include("experiments.jl") #Not for eventual package
-include("external_data.jl") #Not for eventual package
+include("experiments.jl") #Only for reproducing results, nothing exported for this package
+include("external_data.jl") #Only for reproducing results, nothing exported for this package
 
 
-#Export important function, other functions can be accessed via SimultaneousDiagonalisation.FUNCTIONNAME
+#Export important functions defined by this package, other functions can be accessed via SimultaneousDiagonalisation.FUNCTIONNAME
+export
+        #factorisations
+        gpca,
+        ics,
 
-export gpca, ics
-export component_selection
-export normal_test
+        #component_selection
+        component_selection,
 
-export mean1, cov2, mean3, cov4, fastMCD, fastMVE, lcov, rlcov, alcov, arlcov
-export kernel_smoother, adaptive_kernel_smoother
-export linear_kernel, polynomial_kernel, laplacian_kernel, gaussian_kernel, rational_kernel, cosine_kernel, neural_network_kernel, mahalanobis_kernel
-export median_trick, quantile_trick
+        #normality_tests
+        normal_test,
 
-export ols2, logit2, svm2
-export k_fold, stratified_k_fold, diagnostics, diagnostics2D, get_all_eval, mcc
-export tsne2, umap2
+        #scatters
+        mean1,
+        cov2,
+        mean3,
+        cov4,
+        fastMCD,
+        fastMVE,
+        lcov,
+        rlcov,
+        alcov,
+        arlcov,
 
-export scatter_plot, scatter_plot_ind, contour_plot, contour_plot_ind, heatmap_plot, component_plot, bshape_plot
+        #smoothing_kernels
+        kernel_smoother,
+        adaptive_kernel_smoother,
 
-#No export from data_manipulation.jl
-#No export from utilities.jl
+        #reproducing_kernels
+        linear_kernel,
+        polynomial_kernel,
+        laplacian_kernel,
+        gaussian_kernel,
+        rational_kernel,
+        cosine_kernel,
+        neural_network_kernel,
+        mahalanobis_kernel,
 
-#No export from experiments.jl
-#No export from external_data.jl
+        #kernel_manipulation
+        median_trick,
+        quantile_trick,
 
+        #classification
+        ols2,
+        logit2,
+        svm2,
+
+        #evaluation
+        k_fold,
+        stratified_k_fold,
+        diagnostics,
+        diagnostics2D,
+        get_all_eval,
+        mcc,
+
+        #external_methods
+        tsne2,
+        umap2,
+
+        #figures
+        scatter_plot,
+        scatter_plot_ind,
+        contour_plot,
+        contour_plot_ind,
+        heatmap_plot,
+        component_plot,
+        bshape_plot
+
+        #No exports from data_manipulation
+
+        #No exports from utilities
+
+        #No exports from experiments
+
+        #No exports from external_data
+
+#If module is included locally, apply 'using .SimultaneousDiagonalisation' in REPL
 end
